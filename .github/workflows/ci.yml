@@ -1,0 +1,65 @@
+name: Fresh Farm CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  tests:
+    name: Laravel Tests & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP 8.2
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, dom, fileinfo, pdo_sqlite, sqlite3
+        coverage: none
+
+    - name: Setup Node 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Composer Dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+    - name: Install NPM Dependencies
+      run: npm ci --prefer-offline --no-audit
+
+    - name: Setup Environment
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        touch database/database.sqlite
+
+    - name: Run Database Migrations
+      run: php artisan migrate --force --seed
+
+    - name: Build Frontend Assets
+      run: npm run build
+
+    - name: Run PHP Tests
+      run: php artisan test --parallel
+
+    - name: Check Code Style (Optional)
+      run: vendor/bin/pint --test || echo "Code style check skipped"
+      continue-on-error: true
