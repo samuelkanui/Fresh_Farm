@@ -43,8 +43,13 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      - name: Setup Database
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --force
+
       - name: Build Assets
         run: npm run build
 
-      - name: Tests
-        run: ./vendor/bin/phpunit
+      - name: Run Tests
+        run: php artisan test --parallel
