@@ -450,75 +450,7 @@ Inertia.js eliminates the need for a traditional REST API:
 3. **Navigation**: Inertia intercepts links and makes AJAX requests
 4. **State**: Shared data via Inertia's page props
 
-### Example Controller
 
-```php
-// app/Http/Controllers/ProductController.php
-use Inertia\Inertia;
-
-class ProductController extends Controller
-{
-    public function index()
-    {
-        return Inertia::render('Products/Index', [
-            'products' => Product::with('category')->get(),
-        ]);
-    }
-    
-    public function show(Product $product)
-    {
-        return Inertia::render('Products/Show', [
-            'product' => $product->load('category'),
-        ]);
-    }
-}
-```
-
-### Example Vue Page
-
-```vue
-<!-- resources/js/pages/Products/Index.vue -->
-<script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
-import type { Product } from '@/types/models'
-
-defineProps<{
-  products: Product[]
-}>()
-</script>
-
-<template>
-  <div>
-    <h1>Products</h1>
-    <div v-for="product in products" :key="product.id">
-      <Link :href="`/products/${product.id}`">
-        {{ product.name }}
-      </Link>
-    </div>
-  </div>
-</template>
-```
-
-### Form Submission
-
-```vue
-<script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
-
-const form = useForm({
-  name: '',
-  email: '',
-})
-
-const submit = () => {
-  form.post('/orders', {
-    onSuccess: () => form.reset(),
-  })
-}
-</script>
-```
-
----
 
 ## 🧪 Testing
 
@@ -534,16 +466,7 @@ php artisan test --filter=ProductTest
 php artisan test --coverage
 ```
 
-### Feature Test Example
-```php
-public function test_user_can_view_products()
-{
-    $response = $this->get('/products');
-    $response->assertStatus(200);
-}
-```
 
----
 
 ## 🚀 Deployment
 
