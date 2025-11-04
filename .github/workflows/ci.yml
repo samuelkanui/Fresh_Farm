@@ -58,7 +58,7 @@ jobs:
       run: npm run build
 
     - name: Run PHP Tests
-      run: php artisan test --parallel
+      run: php artisan test
 
     - name: Check Code Style (Optional)
       run: vendor/bin/pint --test || echo "Code style check skipped"
